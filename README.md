@@ -4,18 +4,18 @@ A multi-account switcher for [Claude Code CLI](https://docs.anthropic.com/en/doc
 
 ```
   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃                                                    ┃
-  ┃   ◆  Claude Code                                   ┃
-  ┃      Account Switcher                              ┃
-  ┃                                                    ┃
+  ┃                                                  ┃
+  ┃   ◆  Claude Code                                ┃
+  ┃      Account Switcher                            ┃
+  ┃                                                  ┃
   ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-  ┃                                                    ┃
-  ┃   [1]  ●  Account 1                                ┃
-  ┃            Claude Max 20X                          ┃
-  ┃                                                    ┃
-  ┃   [2]  ●  Account 2                                ┃
-  ┃            Claude Pro                              ┃
-  ┃                                                    ┃
+  ┃                                                  ┃
+  ┃   [1]  ●  Account 1                             ┃
+  ┃            Claude Max 20X                        ┃
+  ┃                                                  ┃
+  ┃   [2]  ●  Account 2                             ┃
+  ┃            Claude Pro                            ┃
+  ┃                                                  ┃
   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
   Select account [1/2]:

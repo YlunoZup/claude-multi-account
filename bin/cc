@@ -1,0 +1,37 @@
+#!/bin/bash
+# Claude Code Account Switcher
+# Usage: cc [args...]  - launches claude with account picker
+#        cc 1 [args...] - launches directly with Account 1 (default)
+#        cc 2 [args...] - launches directly with Account 2
+
+PROFILES_DIR="$HOME/.claude-profiles"
+PICKER="$PROFILES_DIR/picker.mjs"
+
+# Quick-switch: cc 1, cc -1, cc 2, cc -2
+case "$1" in
+    1|-1)
+        shift
+        unset CLAUDE_CONFIG_DIR
+        exec claude "$@"
+        ;;
+    2|-2)
+        shift
+        export CLAUDE_CONFIG_DIR="$PROFILES_DIR/account2"
+        exec claude "$@"
+        ;;
+esac
+
+# Run the Node.js picker (UI goes to stderr, selection to stdout)
+profile_path=$(node "$PICKER")
+
+if [[ -z "$profile_path" ]]; then
+    exit 0
+fi
+
+if [[ "$profile_path" == "__DEFAULT__" ]]; then
+    unset CLAUDE_CONFIG_DIR
+else
+    export CLAUDE_CONFIG_DIR="$profile_path"
+fi
+
+exec claude "$@"

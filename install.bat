@@ -50,6 +50,41 @@ if not exist "%PROFILES_DIR%\config.json" (
     echo   [ OK] config.json already exists, skipping
 )
 
+:: ── Install statusline ────────────────────────────────────────
+echo   [INFO] Installing statusline...
+copy /Y "%SCRIPT_DIR%src\statusline.js" "%PROFILES_DIR%\statusline.js" >nul
+echo   [ OK] Installed statusline.js
+
+if not exist "%PROFILES_DIR%\claude-powerline.json" (
+    copy /Y "%SCRIPT_DIR%config\claude-powerline.json" "%PROFILES_DIR%\claude-powerline.json" >nul
+    echo   [ OK] Installed claude-powerline.json
+) else (
+    echo   [ OK] claude-powerline.json already exists, skipping
+)
+
+:: Check for claude-powerline
+where claude-powerline >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo   [WARN] claude-powerline not found. Install it for statusline segments:
+    echo     npm install -g claude-powerline
+    echo.
+) else (
+    echo   [ OK] claude-powerline found
+)
+
+:: ── Configure statusline in settings.json ──────────────────────
+echo   [INFO] Configuring statusline in Claude Code settings...
+
+if exist "%CLAUDE_DIR%\settings.json" (
+    node -e "var fs=require('fs'),p=process.argv[1],s={};try{s=JSON.parse(fs.readFileSync(p,'utf8'))}catch(e){}var h=require('os').homedir().replace(/\\/g,'/');s.statusLine={type:'command',command:'node '+h+'/.claude-profiles/statusline.js'};fs.writeFileSync(p,JSON.stringify(s,null,2)+'\n')" "%CLAUDE_DIR%\settings.json"
+    echo   [ OK] Configured statusline in settings.json
+)
+
+if exist "%ACCOUNT2_DIR%\settings.json" (
+    node -e "var fs=require('fs'),p=process.argv[1],s={};try{s=JSON.parse(fs.readFileSync(p,'utf8'))}catch(e){}var h=require('os').homedir().replace(/\\/g,'/');s.statusLine={type:'command',command:'node '+h+'/.claude-profiles/statusline.js'};fs.writeFileSync(p,JSON.stringify(s,null,2)+'\n')" "%ACCOUNT2_DIR%\settings.json"
+    echo   [ OK] Configured statusline in account2/settings.json
+)
+
 :: ── Set up shared data (junctions from account2 -> .claude) ─
 echo   [INFO] Setting up shared data for Account 2...
 
@@ -118,6 +153,10 @@ echo     cc          Open account picker
 echo     cc 1        Launch with Account 1 (default)
 echo     cc 2        Launch with Account 2
 echo     cc 2 -c     Launch Account 2 in continue mode
+echo.
+echo   Statusline:
+echo     Configured automatically. Your Claude Code sessions
+echo     will show the account badge and powerline segments.
 echo.
 echo   First-time setup for Account 2:
 echo     Run "cc 2" and log in when prompted.

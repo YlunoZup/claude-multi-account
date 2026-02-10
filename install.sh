@@ -68,6 +68,52 @@ else
     ok "config.json already exists, skipping"
 fi
 
+# ── Install statusline ──────────────────────────────────────
+info "Installing statusline..."
+cp "$SCRIPT_DIR/src/statusline.js" "$PROFILES_DIR/statusline.js"
+ok "Installed statusline.js -> $PROFILES_DIR/statusline.js"
+
+if [[ ! -f "$PROFILES_DIR/claude-powerline.json" ]]; then
+    cp "$SCRIPT_DIR/config/claude-powerline.json" "$PROFILES_DIR/claude-powerline.json"
+    ok "Installed claude-powerline.json"
+else
+    ok "claude-powerline.json already exists, skipping"
+fi
+
+# Check for claude-powerline
+if ! command -v claude-powerline &>/dev/null; then
+    warn "claude-powerline not found. Install it for statusline segments:"
+    echo -e "    ${BOLD}npm install -g claude-powerline${RESET}"
+    echo ""
+else
+    ok "claude-powerline found"
+fi
+
+# ── Configure statusline in settings.json ────────────────────
+info "Configuring statusline in Claude Code settings..."
+
+configure_statusline() {
+    local settings_file="$1"
+    node -e 'const fs = require("fs");
+const p = process.argv[1];
+let s = {};
+try { s = JSON.parse(fs.readFileSync(p, "utf8")); } catch {}
+const h = require("os").homedir().replace(/\\/g, "/");
+s.statusLine = { type: "command", command: "node " + h + "/.claude-profiles/statusline.js" };
+fs.writeFileSync(p, JSON.stringify(s, null, 2) + "\n");
+' "$settings_file"
+}
+
+if [[ -f "$CLAUDE_DIR/settings.json" ]]; then
+    configure_statusline "$CLAUDE_DIR/settings.json"
+    ok "Configured statusline in settings.json"
+fi
+
+if [[ -f "$ACCOUNT2_DIR/settings.json" ]]; then
+    configure_statusline "$ACCOUNT2_DIR/settings.json"
+    ok "Configured statusline in account2/settings.json"
+fi
+
 # ── Set up shared data (symlinks from account2 -> ~/.claude) ─
 info "Setting up shared data for Account 2..."
 
@@ -154,6 +200,10 @@ echo -e "    ${CYAN}cc${RESET}          Open account picker"
 echo -e "    ${CYAN}cc 1${RESET}        Launch with Account 1 (default)"
 echo -e "    ${CYAN}cc 2${RESET}        Launch with Account 2"
 echo -e "    ${CYAN}cc 2 -c${RESET}     Launch Account 2 in continue mode"
+echo ""
+echo -e "  ${BOLD}Statusline:${RESET}"
+echo -e "    Configured automatically. Your Claude Code sessions"
+echo -e "    will show the account badge and powerline segments."
 echo ""
 echo -e "  ${BOLD}First-time setup for Account 2:${RESET}"
 echo -e "    Run ${CYAN}cc 2${RESET} and log in when prompted."

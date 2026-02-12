@@ -1,25 +1,48 @@
 #!/bin/bash
 # Claude Code Account Switcher
-# Usage: cc [args...]  - launches claude with account picker
-#        cc 1 [args...] - launches directly with Account 1 (default)
-#        cc 2 [args...] - launches directly with Account 2
+# Usage: cc [args...]    - launches claude with account picker
+#        cc 1 [args...]  - launches directly with Account 1 (default)
+#        cc N [args...]  - launches directly with Account N
 
 PROFILES_DIR="$HOME/.claude-profiles"
 PICKER="$PROFILES_DIR/picker.mjs"
+CONFIG="$PROFILES_DIR/config.json"
 
-# Quick-switch: cc 1, cc -1, cc 2, cc -2
-case "$1" in
-    1|-1)
-        shift
+# Quick-switch: cc <number> [args...]
+if [[ "$1" =~ ^-?[0-9]+$ ]]; then
+    ACCT="${1#-}"
+    shift
+
+    if [[ "$ACCT" == "1" ]]; then
+        # Account 1 = default ~/.claude
         unset CLAUDE_CONFIG_DIR
         exec claude "$@"
-        ;;
-    2|-2)
-        shift
-        export CLAUDE_CONFIG_DIR="$PROFILES_DIR/account2"
-        exec claude "$@"
-        ;;
-esac
+    fi
+
+    # Look up configDir from config.json for this account number
+    if [[ -f "$CONFIG" ]] && command -v node &>/dev/null; then
+        DIR=$(node -e "
+            try {
+                const c = JSON.parse(require('fs').readFileSync('$CONFIG','utf8'));
+                const a = c.accounts['$ACCT'];
+                if (a && a.configDir) process.stdout.write(a.configDir);
+                else if (a) process.stdout.write('__DEFAULT__');
+            } catch {}
+        " 2>/dev/null)
+
+        if [[ -n "$DIR" && "$DIR" != "__DEFAULT__" ]]; then
+            export CLAUDE_CONFIG_DIR="$PROFILES_DIR/$DIR"
+            exec claude "$@"
+        elif [[ "$DIR" == "__DEFAULT__" ]]; then
+            unset CLAUDE_CONFIG_DIR
+            exec claude "$@"
+        fi
+    fi
+
+    # Fallback: assume accountN directory
+    export CLAUDE_CONFIG_DIR="$PROFILES_DIR/account$ACCT"
+    exec claude "$@"
+fi
 
 # Run the Node.js picker (UI goes to stderr, selection to stdout)
 profile_path=$(node "$PICKER")

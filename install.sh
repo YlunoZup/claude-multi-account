@@ -109,16 +109,19 @@ if [[ -f "$CLAUDE_DIR/settings.json" ]]; then
     ok "Configured statusline in settings.json"
 fi
 
-if [[ -f "$ACCOUNT2_DIR/settings.json" ]]; then
-    configure_statusline "$ACCOUNT2_DIR/settings.json"
-    ok "Configured statusline in account2/settings.json"
+# Also configure for account2 — create settings.json if it doesn't exist
+mkdir -p "$ACCOUNT2_DIR"
+if [[ ! -f "$ACCOUNT2_DIR/settings.json" ]]; then
+    echo '{}' > "$ACCOUNT2_DIR/settings.json"
 fi
+configure_statusline "$ACCOUNT2_DIR/settings.json"
+ok "Configured statusline in account2/settings.json"
 
 # ── Set up shared data (symlinks from account2 -> ~/.claude) ─
 info "Setting up shared data for Account 2..."
 
 # Files/dirs to share between accounts
-SHARE_ITEMS=("projects" "todos" "settings.json" "statsig" ".statsig")
+SHARE_ITEMS=("projects" "todos" "statsig" ".statsig")
 
 for item in "${SHARE_ITEMS[@]}"; do
     src="$CLAUDE_DIR/$item"

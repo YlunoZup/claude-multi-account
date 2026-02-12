@@ -103,27 +103,27 @@ bash install.sh /usr/local/bin
 # Open the interactive account picker
 cc
 
-# Launch directly with Account 1 (default ~/.claude)
-cc 1
-
-# Launch directly with Account 2
-cc 2
+# Launch directly with any account by number
+cc 1        # Account 1 (default ~/.claude)
+cc 2        # Account 2
+cc 3        # Account 3 (if configured)
 
 # Pass any Claude Code flags after the account number
 cc 2 --dangerously-skip-permissions
 cc 1 -c    # continue mode
-cc 2 -r "fix the bug in auth.ts"
+cc 3 -r "fix the bug in auth.ts"
 ```
 
-## First-Time Setup for Account 2
+## First-Time Setup for New Accounts
 
-After installing, log in with your second account:
+After installing, log in with each additional account:
 
 ```bash
-cc 2
+cc 2    # logs into Account 2
+cc 3    # logs into Account 3 (if configured)
 ```
 
-Claude Code will detect there are no credentials and prompt you to authenticate. Log in with your second Claude account. After that, the picker will show both accounts as configured.
+Claude Code will detect there are no credentials and prompt you to authenticate. Log in with that account. After that, the picker will show the account as configured.
 
 ## Configuration
 
@@ -177,7 +177,12 @@ Edit `~/.claude-profiles/claude-powerline.json` to customize which segments appe
 
 ### Adding more accounts
 
-1. Create a new directory: `mkdir ~/.claude-profiles/account3`
+You can add as many accounts as you need. The launcher (`cc N`) and picker both support any number of accounts dynamically.
+
+1. Create a new directory:
+   ```bash
+   mkdir ~/.claude-profiles/account3
+   ```
 2. Add it to `config.json`:
    ```json
    {
@@ -188,9 +193,12 @@ Edit `~/.claude-profiles/claude-powerline.json` to customize which segments appe
      }
    }
    ```
-3. Run `cc 3` to log in with the new account
-
-> **Note:** Quick-switch shortcuts (`cc 1` / `cc 2`) are hardcoded in the launcher scripts for speed. For accounts 3+, use the interactive picker or edit `bin/cc` to add more shortcuts.
+3. Create a `settings.json` for the new account (needed for statusline):
+   ```bash
+   echo '{}' > ~/.claude-profiles/account3/settings.json
+   ```
+   Then run `cc 3` — Claude will prompt you to log in. After that, the statusline will be configured automatically.
+4. Quick-switch with `cc 3`, or use the interactive picker (`cc`) which shows all configured accounts.
 
 ## How the Statusline Works
 
@@ -211,10 +219,11 @@ The installer creates symlinks so all accounts share:
 |------|---------|
 | `projects/` | Project-specific settings and memory |
 | `todos/` | Todo lists |
-| `settings.json` | Claude Code preferences |
 | `statsig/` | Analytics/feature flags |
 
-Credentials (`.credentials.json`) are **not** shared — each account has its own login.
+**Not shared** (per-account):
+- `.credentials.json` — each account has its own login
+- `settings.json` — each account has its own settings (needed for individual statusline config)
 
 ## Project Structure
 

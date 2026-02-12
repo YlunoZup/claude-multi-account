@@ -102,19 +102,9 @@ for %%d in (projects todos statsig .statsig) do (
     )
 )
 
-:: Share files via copy (hard links require admin on some Windows versions)
-for %%f in (settings.json) do (
-    if exist "%CLAUDE_DIR%\%%f" (
-        if not exist "%ACCOUNT2_DIR%\%%f" (
-            mklink /H "%ACCOUNT2_DIR%\%%f" "%CLAUDE_DIR%\%%f" >nul 2>nul
-            if !ERRORLEVEL! equ 0 (
-                echo   [ OK] Linked: %%f
-            ) else (
-                copy /Y "%CLAUDE_DIR%\%%f" "%ACCOUNT2_DIR%\%%f" >nul
-                echo   [ OK] Copied: %%f ^(hard link not available^)
-            )
-        )
-    )
+:: Ensure account2 has its own settings.json (not shared, for statusline)
+if not exist "%ACCOUNT2_DIR%\settings.json" (
+    echo {} > "%ACCOUNT2_DIR%\settings.json"
 )
 
 :: ── Install launcher script ─────────────────────────────────

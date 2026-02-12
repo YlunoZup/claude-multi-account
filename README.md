@@ -108,6 +108,10 @@ cc 1        # Account 1 (default ~/.claude)
 cc 2        # Account 2
 cc 3        # Account 3 (if configured)
 
+# Add a new account
+cc add              # prompts for a name
+cc add My Work      # creates with name "My Work"
+
 # Pass any Claude Code flags after the account number
 cc 2 --dangerously-skip-permissions
 cc 1 -c    # continue mode
@@ -177,28 +181,20 @@ Edit `~/.claude-profiles/claude-powerline.json` to customize which segments appe
 
 ### Adding more accounts
 
-You can add as many accounts as you need. The launcher (`cc N`) and picker both support any number of accounts dynamically.
+Use `cc add` to add a new account in one step:
 
-1. Create a new directory:
-   ```bash
-   mkdir ~/.claude-profiles/account3
-   ```
-2. Add it to `config.json`:
-   ```json
-   {
-     "accounts": {
-       "1": { "name": "Personal", "configDir": null },
-       "2": { "name": "Work", "configDir": "account2" },
-       "3": { "name": "Client Project", "configDir": "account3" }
-     }
-   }
-   ```
-3. Create a `settings.json` for the new account (needed for statusline):
-   ```bash
-   echo '{}' > ~/.claude-profiles/account3/settings.json
-   ```
-   Then run `cc 3` — Claude will prompt you to log in. After that, the statusline will be configured automatically.
-4. Quick-switch with `cc 3`, or use the interactive picker (`cc`) which shows all configured accounts.
+```bash
+cc add                  # prompts for a name
+cc add Client Project   # creates with name "Client Project"
+```
+
+This automatically:
+- Finds the next account number
+- Creates the profile directory (`~/.claude-profiles/accountN/`)
+- Updates `config.json`
+- Sets up `settings.json` with the statusline
+
+Then run `cc N` to log in with the new account. The picker will show it immediately.
 
 ## How the Statusline Works
 
